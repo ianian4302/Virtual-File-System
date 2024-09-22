@@ -137,4 +137,12 @@ At this point, the entire architecture is clear and leaves room for new function
 
 I just need to focus on setting the rules and paying attention to edge cases, and follow the already established framework to complete the system. 
 
+##  Unit Test Design
+```
+coverage: 88.6% of statements
+```
+Even though I got what seemed like good coverage, I think my unit test design was pretty poor.
+
+I did take most of the situations into consideration, but I almost adopted a brute force approach in designing the unit test.
+
 
