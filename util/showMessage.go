@@ -15,3 +15,19 @@ func CallError(str string) {
 func CallSuccess(str string) {
 	fmt.Println(Green, str, Reset)
 }
+
+func ShowHelp() {
+	helpMsg := (`Commands:
+	- register [username]
+	- create-folder [username] [foldername] [description]?
+	- delete-folder [username] [foldername]
+	- list-folders [username] [--sort-name|--sort-created] [asc|desc]
+	- rename-folder [username] [foldername] [new-folder-name]
+	- create-file [username] [foldername] [filename] [description]?
+	- delete-file [username] [foldername] [filename]
+	- list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]
+	- exit | quit | q
+	- help
+	`)
+	fmt.Println(helpMsg)
+}
