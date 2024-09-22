@@ -17,14 +17,57 @@ func TestIsValidateUsername(t *testing.T) {
 		{
 			name: "Test case 1",
 			args: args{
-				username: "a",
+				username: "0user",
 			},
 			want: false,
 		},
 		{
 			name: "Test case 2",
 			args: args{
-				username: "test123",
+				username: "",
+			},
+			want: false,
+		},
+		{
+			name: "Test case 3",
+			args: args{
+				username: "user",
+			},
+			want: true,
+		},
+		{
+			name: "Test case 4",
+			args: args{
+				username: "USER",
+			},
+			want: true,
+		},
+		{
+			name: "Test case 5",
+			args: args{
+				username: "user1",
+			},
+			want: true,
+		},
+		//test chars
+		{
+			name: "Test case 6",
+			args: args{
+				username: "user@",
+			},
+			want: false,
+		},
+		{
+			name: "Test case 7",
+			args: args{
+				username: "user!",
+			},
+			want: false,
+		},
+		{
+			name: "Test case 8",
+			args: args{
+				username: "user1",
 			},
 			want: true,
 		},
