@@ -22,14 +22,6 @@ func NewFolder(name string, time time.Time, description string) *Folder {
 	}
 }
 
-func (f *Folder) AddFolder(folder *Folder) {
-	f.Files[folder.Name] = NewFile(folder.Name, folder.Description)
-}
-
-func (f *Folder) DeleteFolder(foldername string) {
-	delete(f.Files, foldername)
-}
-
 func ListFolders(user *User, sortMethod string, order string) {
 	if sortMethod == "name" {
 		//make a mapwith key = usename and value = other info
@@ -49,13 +41,18 @@ func ListFolders(user *User, sortMethod string, order string) {
 				keys[i], keys[opp] = keys[opp], keys[i]
 			}
 		}
-		//List all the folders within the [username] scope in following formats: [foldername]
-		//[description] [created at] [username]
+		//title
+		fmt.Println("| foldername | description | created_at | username |")
+		//List all the folders within the [username] scope in following formats
+		//format: [foldername] [description] [created at] [username]
 		for _, key := range keys {
 			folder := list[key]
 			//humanreadable date/time format.
 			time := folder.Time.Format("2006-01-02 15:04:05")
-			msg := folder.Name + " " + folder.Description + " " + time + " " + user.Username
+			if folder.Description == "" {
+				folder.Description = " no description"
+			}
+			msg := "| " + folder.Name + " | " + folder.Description + " | " + time + " | " + user.Username + " |"
 			fmt.Println(msg)
 		}
 	} else if sortMethod == "created" {
