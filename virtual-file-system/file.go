@@ -53,6 +53,37 @@ func ListFiles(user *User, foldername string, sortMethod string, order string) {
 			msg := "| " + file.Name + " | " + file.Description + " | " + time + " | " + foldername + " |"
 			fmt.Println(msg)
 		}
+	} else if sortMethod == "created" {
+		//make a mapwith key = usename and value = other info
+		list := make(map[time.Time]File)
+		for _, file := range user.Folders[foldername].Files {
+			list[file.Time] = *file
+		}
+		//sort the map by key
+		var keys []time.Time
+		for k := range list {
+			keys = append(keys, k)
+		}
+		if order == "asc" {
+			sort.Slice(keys, func(i, j int) bool {
+				return keys[i].Before(keys[j])
+			})
+		} else {
+			sort.Slice(keys, func(i, j int) bool {
+				return keys[i].After(keys[j])
+			})
+		}
+		//title
+		fmt.Println("| filename | description | created_at | foldername |")
+		//List all the files within the [username] scope in following formats
+		//format: [filename] [description] [created at] [foldername]
+		for _, key := range keys {
+			file := list[key]
+			//humanreadable date/time format.
+			time := file.Time.Format("2006-01-02 15:04:05")
+			msg := "| " + file.Name + " | " + file.Description + " | " + time + " | " + foldername + " |"
+			fmt.Println(msg)
+		}
 	}
 }
 
