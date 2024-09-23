@@ -56,7 +56,36 @@ func ListFolders(user *User, sortMethod string, order string) {
 			fmt.Println(msg)
 		}
 	} else if sortMethod == "created" {
-
+		//make a mapwith key = usename and value = other info
+		list := make(map[time.Time]Folder)
+		for _, folder := range user.Folders {
+			list[folder.Time] = *folder
+		}
+		//sort the map by key
+		var keys []time.Time
+		for k := range list {
+			keys = append(keys, k)
+		}
+		sort.Slice(keys, func(i, j int) bool {
+			if order == "asc" {
+				return keys[i].Before(keys[j])
+			}
+			return keys[i].After(keys[j])
+		})
+		//title
+		fmt.Println("| foldername | description | created_at | username |")
+		//List all the folders within the [username] scope in following formats
+		//format: [foldername] [description] [created at] [username]
+		for _, key := range keys {
+			folder := list[key]
+			//humanreadable date/time format.
+			time := folder.Time.Format("2006-01-02 15:04:05")
+			if folder.Description == "" {
+				folder.Description = " no description"
+			}
+			msg := "| " + folder.Name + " | " + folder.Description + " | " + time + " | " + user.Username + " |"
+			fmt.Println(msg)
+		}
 	}
 }
 
