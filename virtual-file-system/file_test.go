@@ -23,7 +23,7 @@ func TestIsValidateFileName(t *testing.T) {
 		{
 			name: "Test case 2",
 			args: args{
-				filename: "",
+				filename: " ",
 			},
 			want: false,
 		},
@@ -47,6 +47,13 @@ func TestIsValidateFileName(t *testing.T) {
 				filename: "file1",
 			},
 			want: true,
+		},
+		{
+			name: "Test case 6",
+			args: args{
+				filename: "file012345678901234567890",
+			},
+			want: false,
 		},
 	}
 	for _, tt := range tests {
