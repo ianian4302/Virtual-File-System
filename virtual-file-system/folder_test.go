@@ -23,7 +23,7 @@ func TestIsValidateFolderName(t *testing.T) {
 		{
 			name: "Test case 2",
 			args: args{
-				foldername: "",
+				foldername: " ",
 			},
 			want: false,
 		},
@@ -47,6 +47,13 @@ func TestIsValidateFolderName(t *testing.T) {
 				foldername: "folder1",
 			},
 			want: true,
+		},
+		{
+			name: "Test case 6",
+			args: args{
+				foldername: "folder012345678901234567890",
+			},
+			want: false,
 		},
 	}
 	for _, tt := range tests {
