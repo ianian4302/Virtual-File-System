@@ -20,21 +20,22 @@ func main() {
 		fmt.Print(">> ")
 		scanner.Scan()
 		input := scanner.Text()
-		handleCommand(input)
+		util.ShowCommandMsg(handleCommand(input))
+
 	}
 }
 
-func handleCommand(input string) bool {
+func handleCommand(input string) virtualfilesystem.CommandType {
 	parts := strings.Fields(input)
 	if len(parts) == 0 {
-		return false
+		return virtualfilesystem.ErrCommandInvalid
 	}
 	command := strings.ToLower(parts[0])
 	switch command {
 	// common commands
 	case "help":
 		util.ShowHelp()
-		return true
+		return virtualfilesystem.Help
 	case "exit":
 		fmt.Println("Exit the program. ")
 		os.Exit(0)
@@ -48,34 +49,31 @@ func handleCommand(input string) bool {
 	case "register":
 		//register [username]
 		if len(parts) < 2 {
-			util.CallError("Please provide username. ")
-			return false
+			return virtualfilesystem.ErrRegisterArgumentMissing
 		} else if len(parts) > 2 {
-			util.CallError("Please provide only one username. ")
-			return false
+			return virtualfilesystem.ErrRegisterArgumentInvalid
 		}
 		username := strings.ToLower(parts[1])
 		if _, exist := users[username]; exist {
 			msg := fmt.Sprintf("The %s has already existed. ", username)
 			util.CallError(msg)
-			return false
+			return virtualfilesystem.ErrUserAlreadyExists
 		} else if !virtualfilesystem.IsValidateUsername(username) {
 			msg := fmt.Sprintf("The %s contain invalid chars. ", username)
 			util.CallError(msg)
-			return false
+			return virtualfilesystem.ErrUserNameInvalid
 		} else {
 			users[username] = virtualfilesystem.NewUser(username)
 			msg := fmt.Sprintf("Add %s successfully. ", username)
 			util.CallSuccess(msg)
-			return true
+			return virtualfilesystem.Success
 		}
 	//folder commands
 	case "create-folder":
 		{
 			//create-folder [username] [foldername] [description]?
 			if len(parts) < 3 {
-				util.CallError("Please provide username and foldername. ")
-				return false
+				return virtualfilesystem.ErrCreateFolderArgumentMissing
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
@@ -88,58 +86,60 @@ func handleCommand(input string) bool {
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			} else if _, exist := users[username].Folders[foldername]; exist {
 				msg := fmt.Sprintf("The %s has already existed. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderAlreadyExists
 			} else if !virtualfilesystem.IsValidateFolderName(foldername) {
 				msg := fmt.Sprintf("The %s contain invalid chars. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNameInvalid
 			} else {
 				users[username].Folders[foldername] = virtualfilesystem.NewFolder(foldername, time, description)
 				msg := fmt.Sprintf("Add %s successfully. ", foldername)
 				util.CallSuccess(msg)
-				return true
+				return virtualfilesystem.Success
 			}
 		}
 	case "delete-folder":
 		{
 			//delete-folder [username] [foldername]
 			if len(parts) < 3 {
-				util.CallError("Please provide username and foldername. ")
-				return false
+				return virtualfilesystem.ErrDeleteFolderArgumentMissing
+			} else if len(parts) > 3 {
+				return virtualfilesystem.ErrDeleteFolderArgumentInvalid
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			} else if _, exist := users[username].Folders[foldername]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNotFound
 			} else {
 				delete(users[username].Folders, foldername)
 				msg := fmt.Sprintf("Delete %s successfully. ", foldername)
 				util.CallSuccess(msg)
-				return true
+				return virtualfilesystem.Success
 			}
 		}
 	case "list-folders":
 		{
 			//list-folders [username] [--sort-name|--sort-created] [asc|desc]
 			if len(parts) < 2 {
-				util.CallError("Please provide username. ")
-				return false
+				return virtualfilesystem.ErrListFoldersArgumentMissing
+			} else if len(parts) > 4 {
+				return virtualfilesystem.ErrListFoldersArgumentInvalid
 			}
 			username := strings.ToLower(parts[1])
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			}
 			// [--sort-name|--sort-created]
 			sort := "name"
@@ -151,8 +151,7 @@ func handleCommand(input string) bool {
 				} else if parts[2] == "--sort-created" {
 					sort = "created"
 				} else {
-					util.CallError("Invalid sort option. ")
-					return false
+					return virtualfilesystem.ErrListFoldersArgumentInvalid
 				}
 			}
 			if len(parts) > 3 {
@@ -161,19 +160,19 @@ func handleCommand(input string) bool {
 				} else if parts[3] == "desc" {
 					order = "desc"
 				} else {
-					util.CallError("Invalid order option. ")
-					return false
+					return virtualfilesystem.ErrListFoldersArgumentInvalid
 				}
 			}
 			virtualfilesystem.ListFolders(users[username], sort, order)
-			return true
+			return virtualfilesystem.Success
 		}
 	case "rename-folder":
 		{
 			//rename-folder [username] [foldername] [new-folder-name]
 			if len(parts) < 4 {
-				util.CallError("Please provide username, foldername and new-folder-name. ")
-				return false
+				return virtualfilesystem.ErrRenameFolderArgumentMissing
+			} else if len(parts) > 4 {
+				return virtualfilesystem.ErrRenameFolderArgumentInvalid
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
@@ -181,25 +180,25 @@ func handleCommand(input string) bool {
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			} else if _, exist := users[username].Folders[foldername]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNotFound
 			} else if _, exist := users[username].Folders[newFolderName]; exist {
 				msg := fmt.Sprintf("The %s has already existed. ", newFolderName)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderAlreadyExists
 			} else if !virtualfilesystem.IsValidateFolderName(newFolderName) {
 				msg := fmt.Sprintf("The %s contain invalid chars. ", newFolderName)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNameInvalid
 			} else {
 				users[username].Folders[newFolderName] = users[username].Folders[foldername]
 				delete(users[username].Folders, foldername)
 				msg := fmt.Sprintf("Rename %s to %s successfully. ", foldername, newFolderName)
 				util.CallSuccess(msg)
-				return true
+				return virtualfilesystem.Success
 			}
 		}
 	//file commands
@@ -207,8 +206,7 @@ func handleCommand(input string) bool {
 		{
 			//create-file [username] [foldername] [filename] [description]?
 			if len(parts) < 4 {
-				util.CallError("Please provide username, foldername and filename. ")
-				return false
+				return virtualfilesystem.ErrCreateFileArgumentMissing
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
@@ -222,32 +220,33 @@ func handleCommand(input string) bool {
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			} else if _, exist := users[username].Folders[foldername]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNotFound
 			} else if _, exist := users[username].Folders[foldername].Files[filename]; exist {
 				msg := fmt.Sprintf("The %s has already existed. ", filename)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFileAlreadyExists
 			} else if !virtualfilesystem.IsValidateFileName(filename) {
 				msg := fmt.Sprintf("The %s contain invalid chars. ", filename)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFileNameInvalid
 			} else {
 				users[username].Folders[foldername].Files[filename] = virtualfilesystem.NewFile(filename, time, description)
 				msg := fmt.Sprintf("Create %s in %s/%s successfully. ", filename, username, foldername)
 				util.CallSuccess(msg)
-				return true
+				return virtualfilesystem.Success
 			}
 		}
 	case "delete-file":
 		{
 			//delete-file [username] [foldername] [filename]
 			if len(parts) < 4 {
-				util.CallError("Please provide username, foldername and filename. ")
-				return false
+				return virtualfilesystem.ErrDeleteFileArgumentMissing
+			} else if len(parts) > 4 {
+				return virtualfilesystem.ErrDeleteFileArgumentInvalid
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
@@ -255,41 +254,42 @@ func handleCommand(input string) bool {
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			} else if _, exist := users[username].Folders[foldername]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNotFound
 			}
 			if _, exist := users[username].Folders[foldername].Files[filename]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", filename)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFileNotFound
 			} else {
 				delete(users[username].Folders[foldername].Files, filename)
 				msg := fmt.Sprintf("Delete %s in %s/%s successfully. ", filename, username, foldername)
 				util.CallSuccess(msg)
-				return true
+				return virtualfilesystem.Success
 			}
 		}
 	case "list-files":
 		{
 			//list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]
 			if len(parts) < 3 {
-				util.CallError("Please provide username and foldername. ")
-				return false
+				return virtualfilesystem.ErrListFilesArgumentMissing
+			} else if len(parts) > 5 {
+				return virtualfilesystem.ErrListFilesArgumentInvalid
 			}
 			username := strings.ToLower(parts[1])
 			foldername := strings.ToLower(parts[2])
 			if _, exist := users[username]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", username)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrUserNotFound
 			}
 			if _, exist := users[username].Folders[foldername]; !exist {
 				msg := fmt.Sprintf("The %s does not exist. ", foldername)
 				util.CallError(msg)
-				return false
+				return virtualfilesystem.ErrFolderNotFound
 			}
 			// [--sort-name|--sort-created]
 			sort := "name"
@@ -301,8 +301,7 @@ func handleCommand(input string) bool {
 				} else if parts[3] == "--sort-created" {
 					sort = "created"
 				} else {
-					util.CallError("Invalid sort option. ")
-					return false
+					return virtualfilesystem.ErrListFilesArgumentInvalid
 				}
 			}
 			if len(parts) > 4 {
@@ -311,17 +310,15 @@ func handleCommand(input string) bool {
 				} else if parts[4] == "desc" {
 					order = "desc"
 				} else {
-					util.CallError("Invalid order option. ")
-					return false
+					return virtualfilesystem.ErrListFilesArgumentInvalid
 				}
 			}
 			virtualfilesystem.ListFiles(users[username], foldername, sort, order)
-			return true
+			return virtualfilesystem.Success
 		}
 	//default (Invalid command)
 	default:
-		util.CallError("Invalid command. ")
-		return false
+		return virtualfilesystem.ErrCommandNotFound
 	}
-	return true
+	return virtualfilesystem.Success
 }
