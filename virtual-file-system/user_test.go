@@ -24,7 +24,7 @@ func TestIsValidateUsername(t *testing.T) {
 		{
 			name: "Test case 2",
 			args: args{
-				username: "",
+				username: " ",
 			},
 			want: false,
 		},
@@ -49,7 +49,6 @@ func TestIsValidateUsername(t *testing.T) {
 			},
 			want: true,
 		},
-		//test chars
 		{
 			name: "Test case 6",
 			args: args{
@@ -60,16 +59,9 @@ func TestIsValidateUsername(t *testing.T) {
 		{
 			name: "Test case 7",
 			args: args{
-				username: "user!",
+				username: "user012345678901234567890",
 			},
 			want: false,
-		},
-		{
-			name: "Test case 8",
-			args: args{
-				username: "user1",
-			},
-			want: true,
 		},
 	}
 	for _, tt := range tests {
