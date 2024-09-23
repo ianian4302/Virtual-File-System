@@ -13,6 +13,18 @@ You should be in the same workspace as the main.go file.
 ```
 ../Virtual-File-System/main.go
 ```
+## Environment
+*   IDE : Vscode
+*   Extension : Go for Visual Studio Code
+*   go version : go version go1.23.1 windows/amd64
+
+## Dependence
+Use the following commands or shortcut keys to confirm the extensions and tools version. 
+
+1. Ctrl+Shift+P
+2. Go: Install/Update Tools
+3. Select all and dowload.
+
 ## Run Code
 Please use the following command to execute the program to prevent unknown errors. 
 ```java
@@ -23,33 +35,21 @@ If you have extension "Code Runner", you can use the button "Run Code"(Ctrl+Alt+
 
 ##  Run Test
 ```java
-go test
-
-//for more information
-go test -v
-
-//check test cover rate
-go test -cover
+go test ./... -cover
 ```
 
-## Environment
-
-*   IDE : vscode
-*   go version : go version go1.23.1 windows/amd64
-
-## dependence
-Use the following commands or shortcut keys to confirm the extensions and tools version. 
-
-1. Ctrl+Shift+P
-2. Go: Install/Update Tools
-3. Select all and dowload.
-
+|Folder|Coverage|
+|-|-|
+|./|82.1%|
+|./virtual-file-system|33.3%|
+|./util|0.0%|
 ##  Command
 ### User
 ```java
 //register
 register [username]
 ```
+
 |Field|Required|Default|
 |-|-|-|
 |username|Yes||
@@ -70,6 +70,7 @@ list-folders ian --sort-name asc
 //rename
 rename-folder [username] [foldername] [new-folder-name]
 ```
+
 |Field|Required|Default|
 |-|-|-|
 |username|Yes||
@@ -89,6 +90,7 @@ delete-file [username] [foldername] [filename]
 //list
 list-files [username] [foldername] [--sort-name|--sort-created] [asc|desc]
 ```
+
 |Field|Required|Default|
 |-|-|-|
 |username|Yes||
@@ -131,16 +133,21 @@ Using this structure allows me to clearly feel the relationship between them whe
 
 Next, I use **handleCommand function** to wrap the command processing part to make the logic in the command clearer and more readable.
 
-In order to make **handleCommand** look more concise, I packaged some functions into **package virtualfilesystem** and **package util** Let handleCommand focus on reading the commands
+In order to make **handleCommand** look more concise, I packaged some functions into **package virtualfilesystem** and **package util** Let handleCommand focus on reading the commands. 
+
+I defined the error type for handlecommand to distinguish the error types that were originally mixed together.
 
 At this point, the entire architecture is clear and leaves room for new functions in the future.
 
 I just need to focus on setting the rules and paying attention to edge cases, and follow the already established framework to complete the system. 
 
 ##  Unit Test Design
-```
-coverage: 88.6% of statements
-```
+|Folder|Coverage|
+|-|-|
+|./|82.1%|
+|./virtual-file-system|33.3%|
+|./util|0.0%|
+
 Even though I got what seemed like good coverage, I think my unit test design was pretty poor.
 
 I did take most of the situations into consideration, but I almost adopted a brute force approach in designing the unit test.
