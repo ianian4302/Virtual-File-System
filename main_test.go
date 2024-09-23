@@ -1,6 +1,24 @@
 package main
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+
+	virtualfilesystem "github.com/ianian4302/Virtual-File-System/virtual-file-system"
+)
+
+func Test_main(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			main()
+		})
+	}
+}
 
 func Test_handleCommand(t *testing.T) {
 	type args struct {
@@ -9,506 +27,427 @@ func Test_handleCommand(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want bool
+		want virtualfilesystem.CommandType
 	}{
-		//init field
+		//init test
 		{
-			name: "Init Test case 1",
+			name: "Init Test 1",
 			args: args{
-				input: "register userName1",
+				input: "register name1",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 2",
+			name: "Init Test 2",
 			args: args{
-				input: "register userName2",
+				input: "register name2",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 3",
+			name: "Init Test 3",
 			args: args{
-				input: "create-folder userName1 folderName1",
+				input: "create-folder name1 folder1",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 4",
+			name: "Init Test 4",
 			args: args{
-				input: "create-folder userName1 folderName2",
+				input: "create-folder name1 folder2 description2",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 5",
+			name: "Init Test 5",
 			args: args{
-				input: "create-folder userName2 folderName1",
+				input: "create-folder name2 folder1",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 6",
+			name: "Init Test 6",
 			args: args{
-				input: "create-folder userName2 folderName2",
+				input: "create-folder name2 folder2 forDelete",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 7",
+			name: "Init Test 7",
 			args: args{
-				input: "create-file userName1 folderName1 fileName1",
+				input: "create-folder name2 folder3 forRename",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Init Test case 8",
+			name: "Init Test 8",
 			args: args{
-				input: "create-file userName1 folderName1 fileName2",
+				input: "create-file name2 folder1 file1",
 			},
-			want: true,
+			want: virtualfilesystem.Success,
 		},
-		//help field
 		{
-			name: "Help",
+			name: "Init Test 9",
+			args: args{
+				input: "create-file name2 folder1 file2 forDelete",
+			},
+			want: virtualfilesystem.Success,
+		},
+		//test for help
+		{
+			name: "Help Test 1",
 			args: args{
 				input: "help",
 			},
-			want: true,
+			want: virtualfilesystem.Help,
 		},
-		//register field
+		//register test
 		{
-			name: "Register Test case 1",
+			name: "Register Test 1",
+			args: args{
+				input: "register name1",
+			},
+			want: virtualfilesystem.ErrUserAlreadyExists,
+		},
+		{
+			name: "Register Test 2",
 			args: args{
 				input: "register",
 			},
-			want: false,
+			want: virtualfilesystem.ErrRegisterArgumentMissing,
 		},
 		{
-			name: "Register Test case 2",
+			name: "Register Test 3",
 			args: args{
-				input: "register userName1 userName2",
+				input: "register name1 name2",
 			},
-			want: false,
+			want: virtualfilesystem.ErrRegisterArgumentInvalid,
+		},
+		//create-folder test
+		{
+			name: "Create-Folder Test 1",
+			args: args{
+				input: "create-folder name1 folder1",
+			},
+			want: virtualfilesystem.ErrFolderAlreadyExists,
 		},
 		{
-			name: "Register Test case 3",
+			name: "Create-Folder Test 2",
 			args: args{
-				input: "register a",
+				input: "create-folder name1",
 			},
-			want: false,
+			want: virtualfilesystem.ErrCreateFolderArgumentMissing,
 		},
 		{
-			//duplicate username
-			name: "Register Test case 4",
+			name: "Create-Folder Test 3",
 			args: args{
-				input: "register userName1",
+				input: "create-folder name99 folder1",
 			},
-			want: false,
+			want: virtualfilesystem.ErrUserNotFound,
 		},
-		//---------------------------------------------------------------------------------------
-		//folder field
-		//create-folder field
+		//delete-folder test
 		{
-			name: "Create-folder Test case 1",
+			name: "Delete-Folder Test 1",
 			args: args{
-				input: "create-folder",
+				input: "delete-folder name2 folder2",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Create-folder Test case 2",
+			name: "Delete-Folder Test 2",
 			args: args{
-				input: "create-folder userName1",
+				input: "delete-folder name2 folder2",
 			},
-			want: false,
+			want: virtualfilesystem.ErrFolderNotFound,
 		},
 		{
-			//duplicate folder name
-			name: "Create-folder Test case 3",
+			name: "Delete-Folder Test 3",
 			args: args{
-				input: "create-folder userName1 folderName1",
+				input: "delete-folder name2",
 			},
-			want: false,
+			want: virtualfilesystem.ErrDeleteFolderArgumentMissing,
+		},
+		{
+			name: "Delete-Folder Test 4",
+			args: args{
+				input: "delete-folder name2 folder2 folder3",
+			},
+			want: virtualfilesystem.ErrDeleteFolderArgumentInvalid,
+		},
+		{
+			name: "Delete-Folder Test 5",
+			args: args{
+				input: "delete-folder name99 folder1",
+			},
+			want: virtualfilesystem.ErrUserNotFound,
+		},
+		//list-folders test
+		{
+			name: "List-Folders Test 1",
+			args: args{
+				input: "list-folders name1",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 2",
+			args: args{
+				input: "list-folders name1 --sort-name",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 3",
+			args: args{
+				input: "list-folders name1 --sort-name asc",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 4",
+			args: args{
+				input: "list-folders name1 --sort-name desc",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 5",
+			args: args{
+				input: "list-folders name1 --sort-created",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 6",
+			args: args{
+				input: "list-folders name1 --sort-created asc",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 7",
+			args: args{
+				input: "list-folders name1 --sort-created desc",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "List-Folders Test 8",
+			args: args{
+				input: "list-folders name1 --sort-name asc desc",
+			},
+			want: virtualfilesystem.ErrListFoldersArgumentInvalid,
+		},
+		{
+			name: "List-Folders Test 9",
+			args: args{
+				input: "list-folders name1 --sort-nam123 desc asc",
+			},
+			want: virtualfilesystem.ErrListFoldersArgumentInvalid,
+		},
+		//rename-folder test
+		{
+			name: "Rename-Folder Test 1",
+			args: args{
+				input: "rename-folder name2 folder3 folder3",
+			},
+			want: virtualfilesystem.ErrFolderAlreadyExists,
+		},
+		{
+			name: "Rename-Folder Test 2",
+			args: args{
+				input: "rename-folder name2 folder3 folder4",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "Rename-Folder Test 3",
+			args: args{
+				input: "rename-folder name2 folder3 folder99",
+			},
+			want: virtualfilesystem.ErrFolderNotFound,
+		},
+		{
+			name: "Rename-Folder Test 4",
+			args: args{
+				input: "rename-folder name2 folder3",
+			},
+			want: virtualfilesystem.ErrRenameFolderArgumentMissing,
+		},
+		{
+			name: "Rename-Folder Test 5",
+			args: args{
+				input: "rename-folder name2 folder3 folder4 folder5",
+			},
+			want: virtualfilesystem.ErrRenameFolderArgumentInvalid,
+		},
+		{
+			name: "Rename-Folder Test 6",
+			args: args{
+				input: "rename-folder name99 folder1 folder2",
+			},
+			want: virtualfilesystem.ErrUserNotFound,
+		},
+		//create-file test
+		{
+			name: "Create-File Test 1",
+			args: args{
+				input: "create-file name2 folder1",
+			},
+			want: virtualfilesystem.ErrCreateFileArgumentMissing,
 		},
 		{
 			//user not found
-			name: "Create-folder Test case 4",
+			name: "Create-File Test 2",
 			args: args{
-				input: "create-folder userName99 folderName1",
+				input: "create-file name99 folder1 file1",
 			},
-			want: false,
-		},
-		{
-			//folder name length is greater than 20
-			name: "Create-folder Test case 5",
-			args: args{
-				input: "create-folder userName1 folderName123456789012345678901",
-			},
-			want: false,
-		},
-		//delete-folder field
-		{
-			name: "Delete-folder Test case 1",
-			args: args{
-				input: "delete-folder",
-			},
-			want: false,
-		},
-		{
-			name: "Delete-folder Test case 2",
-			args: args{
-				input: "delete-folder userName2",
-			},
-			want: false,
-		},
-		{
-			name: "Delete-folder Test case 3",
-			args: args{
-				input: "delete-folder userName2 folderName2",
-			},
-			want: true,
+			want: virtualfilesystem.ErrUserNotFound,
 		},
 		{
 			//folder not found
-			name: "Delete-folder Test case 4",
+			name: "Create-File Test 3",
 			args: args{
-				input: "delete-folder userName2 folderName2",
+				input: "create-file name2 folder99 file1",
 			},
-			want: false,
+			want: virtualfilesystem.ErrFolderNotFound,
+		},
+		{
+			//duplicate file
+			name: "Create-File Test 4",
+			args: args{
+				input: "create-file name2 folder1 file1",
+			},
+			want: virtualfilesystem.ErrFileAlreadyExists,
+		},
+		//delete-file test
+		{
+			name: "Delete-File Test 1",
+			args: args{
+				input: "delete-file name2 folder1 file2",
+			},
+			want: virtualfilesystem.Success,
+		},
+		{
+			name: "Delete-File Test 2",
+			args: args{
+				input: "delete-file name2 folder1 file2",
+			},
+			want: virtualfilesystem.ErrFileNotFound,
+		},
+		{
+			name: "Delete-File Test 3",
+			args: args{
+				input: "delete-file name2 folder1",
+			},
+			want: virtualfilesystem.ErrDeleteFileArgumentMissing,
+		},
+		{
+			name: "Delete-File Test 4",
+			args: args{
+				input: "delete-file name2 folder1 file1 file2",
+			},
+			want: virtualfilesystem.ErrDeleteFileArgumentInvalid,
 		},
 		{
 			//user not found
-			name: "Delete-folder Test case 5",
+			name: "Delete-File Test 5",
 			args: args{
-				input: "delete-folder userName99 folderName3",
+				input: "delete-file name99 folder1 file1",
 			},
-			want: false,
-		},
-		//list-folder field
-		{
-			name: "List-folders Test case 1",
-			args: args{
-				input: "list-folders",
-			},
-			want: false,
-		},
-		{
-			name: "List-folders Test case 2",
-			args: args{
-				input: "list-folders userName1",
-			},
-			want: true,
-		},
-		{
-			//user not found
-			name: "List-folders Test case 3",
-			args: args{
-				input: "list-folders userName99",
-			},
-			want: false,
-		},
-		{
-			//sort method is not valid
-			name: "List-folders Test case 4",
-			args: args{
-				input: "list-folders userName1 sortMethod",
-			},
-			want: false,
-		},
-		{
-			name: "List-folders Test case 5",
-			args: args{
-				input: "list-folders userName1 --sort-name",
-			},
-			want: true,
-		},
-		{
-			name: "List-folders Test case 6",
-			args: args{
-				input: "list-folders userName1 --sort-name desc",
-			},
-			want: true,
-		},
-		{
-			name: "List-folders Test case 7",
-			args: args{
-				input: "list-folders userName1 --sort-created",
-			},
-			want: true,
-		},
-		{
-			name: "List-folders Test case 8",
-			args: args{
-				input: "list-folders userName1 --sort-created desc",
-			},
-			want: true,
-		},
-		{
-			//invalid sort method
-			name: "List-folders Test case 9",
-			args: args{
-				input: "list-folders userName1 --sort-created desc1",
-			},
-			want: false,
-		},
-		//rename-folder field
-		{
-			name: "Rename-folder Test case 1",
-			args: args{
-				input: "rename-folder",
-			},
-			want: false,
-		},
-		{
-			name: "Rename-folder Test case 2",
-			args: args{
-				input: "rename-folder userName2",
-			},
-			want: false,
-		},
-		{
-			name: "Rename-folder Test case 3",
-			args: args{
-				input: "rename-folder userName2 folderName1 folderName2",
-			},
-			want: true,
-		},
-		{
-			//folder new name already exists
-			name: "Rename-folder Test case 4",
-			args: args{
-				input: "rename-folder userName2 folderName1 folderName2",
-			},
-			want: false,
+			want: virtualfilesystem.ErrUserNotFound,
 		},
 		{
 			//folder not found
-			name: "Rename-folder Test case 5",
+			name: "Delete-File Test 6",
 			args: args{
-				input: "rename-folder userName2 folderName1 folderName3",
+				input: "delete-file name2 folder99 file1",
 			},
-			want: false,
+			want: virtualfilesystem.ErrFolderNotFound,
+		},
+		//list-files test
+		{
+			name: "List-Files Test 1",
+			args: args{
+				input: "list-files name2 folder1",
+			},
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Rename-folder Test case 3",
+			name: "List-Files Test 2",
 			args: args{
-				input: "rename-folder userName2 folderName2 folderName1",
+				input: "list-files name2 folder99",
 			},
-			want: true,
+			want: virtualfilesystem.ErrFolderNotFound,
 		},
 		{
-			//user not found
-			name: "Rename-folder Test case 5",
+			name: "List-Files Test 3",
 			args: args{
-				input: "rename-folder userName99 folderName3 folderName4",
+				input: "list-files name2 folder1 --sort-name",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			//folder name length is greater than 20
-			name: "Rename-folder Test case 6",
+			name: "List-Files Test 4",
 			args: args{
-				input: "rename-folder userName2 folderName1 folderName123456789012345678901",
+				input: "list-files name2 folder1 --sort-name asc",
 			},
-			want: false,
-		},
-		//---------------------------------------------------------------------------------------
-		//file field
-		//create-file field
-		{
-			name: "Create-file Test case 1",
-			args: args{
-				input: "create-file",
-			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Create-file Test case 2",
+			name: "List-Files Test 5",
 			args: args{
-				input: "create-file userName1",
+				input: "list-files name2 folder1 --sort-name desc",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			name: "Create-file Test case 3",
+			name: "List-Files Test 6",
 			args: args{
-				input: "create-file userName1 folderName1",
+				input: "list-files name2 folder1 --sort-created",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			//duplicate file name
-			name: "Create-file Test case 4",
+			name: "List-Files Test 7",
 			args: args{
-				input: "create-file userName1 folderName1 fileName1",
+				input: "list-files name2 folder1 --sort-created asc",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			//folder not found
-			name: "Create-file Test case 5",
+			name: "List-Files Test 8",
 			args: args{
-				input: "create-file userName1 folderName99 fileName1",
+				input: "list-files name2 folder1 --sort-created desc",
 			},
-			want: false,
+			want: virtualfilesystem.Success,
 		},
 		{
-			//user not found
-			name: "Create-file Test case 6",
+			name: "List-Files Test 9",
 			args: args{
-				input: "create-file userName99 folderName1 fileName1",
+				input: "list-files name2 folder1 --sort-name asc desc",
 			},
-			want: false,
+			want: virtualfilesystem.ErrListFilesArgumentInvalid,
 		},
 		{
-			//file name length is greater than 20
-			name: "Create-file Test case 7",
+			name: "List-Files Test 10",
 			args: args{
-				input: "create-file userName1 folderName1 fileName123456789012345678901",
+				input: "list-files name2 folder1 --sort-nam123 desc asc",
 			},
-			want: false,
+			want: virtualfilesystem.ErrListFilesArgumentInvalid,
 		},
-		//delete-file field
+		//default test
 		{
-			name: "Delete-file Test case 1",
-			args: args{
-				input: "delete-file",
-			},
-			want: false,
-		},
-		{
-			name: "Delete-file Test case 2",
-			args: args{
-				input: "delete-file userName1",
-			},
-			want: false,
-		},
-		{
-			name: "Delete-file Test case 3",
-			args: args{
-				input: "delete-file userName1 folderName1",
-			},
-			want: false,
-		},
-		{
-			name: "Delete-file Test case 4",
-			args: args{
-				input: "delete-file userName1 folderName1 fileName1",
-			},
-			want: true,
-		},
-		{
-			//file not found
-			name: "Delete-file Test case 5",
-			args: args{
-				input: "delete-file userName1 folderName1 fileName1",
-			},
-			want: false,
-		},
-		{
-			//folder not found
-			name: "Delete-file Test case 6",
-			args: args{
-				input: "delete-file userName1 folderName99 fileName1",
-			},
-			want: false,
-		},
-		{
-			//user not found
-			name: "Delete-file Test case 7",
-			args: args{
-				input: "delete-file userName99 folderName1 fileName1",
-			},
-			want: false,
-		},
-		//list-file field
-		{
-			name: "List-files Test case 1",
-			args: args{
-				input: "list-files",
-			},
-			want: false,
-		},
-		{
-			name: "List-files Test case 2",
-			args: args{
-				input: "list-files userName1",
-			},
-			want: false,
-		},
-		{
-			//user not found
-			name: "List-files Test case 3",
-			args: args{
-				input: "list-files userName99",
-			},
-			want: false,
-		},
-		{
-			//folder not found
-			name: "List-files Test case 4",
-			args: args{
-				input: "list-files userName1 folderName99",
-			},
-			want: false,
-		},
-		{
-			//sort method is not valid
-			name: "List-files Test case 5",
-			args: args{
-				input: "list-files userName1 folderName1 sortMethod",
-			},
-			want: false,
-		},
-		{
-			name: "List-files Test case 6",
-			args: args{
-				input: "list-files userName1 folderName1 --sort-name",
-			},
-			want: true,
-		},
-		{
-			name: "List-files Test case 7",
-			args: args{
-				input: "list-files userName1 folderName1 --sort-name desc",
-			},
-			want: true,
-		},
-		{
-			name: "List-files Test case 8",
-			args: args{
-				input: "list-files userName1 folderName1 --sort-created",
-			},
-			want: true,
-		},
-		{
-			name: "List-files Test case 9",
-			args: args{
-				input: "list-files userName1 folderName1 --sort-created desc",
-			},
-			want: true,
-		},
-		{
-			//invalid sort method
-			name: "List-files Test case 10",
-			args: args{
-				input: "list-files userName1 folderName1 --sort-created desc1",
-			},
-			want: false,
-		},
-		//default
-		{
-			name: "Default Test case 1",
+			name: "Default Test 1",
 			args: args{
 				input: "default",
 			},
-			want: false,
+			want: virtualfilesystem.ErrCommandNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := handleCommand(tt.args.input); got != tt.want {
+			if got := handleCommand(tt.args.input); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("handleCommand() = %v, want %v", got, tt.want)
 			}
 		})
