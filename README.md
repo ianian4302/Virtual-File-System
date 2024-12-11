@@ -1,4 +1,5 @@
 #   Backend Assignment - Virtual File System
+This is a Virtual File System with code language => Go, Using datastructure simulate Back-end system.
 
 ##  Desiner
 Wen Yen Chen / 陳文彥 
